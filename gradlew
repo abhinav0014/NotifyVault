@@ -5,7 +5,7 @@ APP_BASE_NAME=$(basename "$0")
 APP_HOME=$(cd "$(dirname "$0")" && pwd)
 MAX_FD="maximum"
 GRADLE_OPTS="${GRADLE_OPTS:-}"
-DEFAULT_JVM_OPTS='"-Xmx64m" "-Xms64m"'
+DEFAULT_JVM_OPTS=""
 
 warn() { echo "$*"; }
 die() { echo; echo "ERROR: $*"; echo; exit 1; }
