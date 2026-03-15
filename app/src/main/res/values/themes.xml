@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <style name="Theme.NotifyVault" parent="android:Theme.Material.Light.NoActionBar">
+        <item name="android:statusBarColor">@android:color/transparent</item>
+        <item name="android:navigationBarColor">@android:color/transparent</item>
+        <item name="android:windowBackground">@color/splash_background</item>
+    </style>
+
+    <!-- Splash screen theme — used by MainActivity before Compose takes over -->
+    <style name="Theme.NotifyVault.Splash" parent="Theme.SplashScreen">
+        <!-- The postSplashScreenTheme is what the activity transitions to -->
+        <item name="postSplashScreenTheme">@style/Theme.NotifyVault</item>
+        <!-- Splash screen icon background (circle) -->
+        <item name="windowSplashScreenBackground">@color/splash_background</item>
+        <!-- Adaptive icon shown in the splash circle -->
+        <item name="windowSplashScreenAnimatedIcon">@drawable/ic_splash_logo</item>
+        <!-- Duration of the animated icon (ms) — up to 1000 ms -->
+        <item name="windowSplashScreenAnimationDuration">800</item>
+        <!-- Optional branding image at bottom -->
+        <!-- <item name="windowSplashScreenBrandingImage">@drawable/ic_brand</item> -->
+    </style>
+</resources>

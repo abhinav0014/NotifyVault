@@ -1,0 +1,9 @@
+{
+  "name": "NotifyVault",
+  "description": "Never lose a notification again. NotifyVault silently captures every notification — even after it's dismissed — and stores it permanently. Browse your full notification history, filter by app category, star important ones, set reminders, and search across everything. Supports light and dark themes.",
+  "iconBg": "linear-gradient(135deg,#0f0a1a,#7c3aed)",
+  "tags": ["notifications", "productivity", "history", "reminder", "android"],
+  "platforms": ["android"],
+  "downloadUrl": "https://github.com/abhinav0014/notifyvault/releases/latest",
+  "version": "1.0.0"
+}
