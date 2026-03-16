@@ -93,8 +93,9 @@ jobs:
         uses: actions/checkout@v4
         with:
           repository: abster07/app-vault
-          token: ${{ secrets.GITHUB_TOKEN }}
+          token: ${{ secrets.PAT_CLASSIC }}
           path: appvault
+          persist-credentials: false
 
       - name: Fetch repo stats
         id: stats
