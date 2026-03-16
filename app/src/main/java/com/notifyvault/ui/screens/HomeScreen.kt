@@ -1,9 +1,10 @@
 package com.notifyvault.ui.screens
 
-import androidx.compose.animation.*
-import androidx.compose.foundation.*
+import androidx.compose.animation.animateContentSize
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.lazy.*
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
@@ -12,7 +13,6 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.notifyvault.data.model.AppCategory
@@ -44,7 +44,6 @@ fun HomeScreen(
     var reminderNotification by remember { mutableStateOf<NotificationEntity?>(null) }
     var showClearDialog by remember { mutableStateOf(false) }
 
-    // Reminder dialog
     reminderNotification?.let { notif ->
         ReminderDialog(
             notificationTitle = notif.title.ifBlank { notif.appName },
@@ -81,10 +80,6 @@ fun HomeScreen(
                                 placeholder = { Text("Search notifications...") },
                                 singleLine = true,
                                 modifier = Modifier.fillMaxWidth(),
-                                colors = OutlinedTextFieldDefaults.colors(
-                                    unfocusedBorderColor = MaterialTheme.colorScheme.outlineVariant,
-                                    focusedBorderColor = MaterialTheme.colorScheme.primary
-                                ),
                                 shape = RoundedCornerShape(12.dp)
                             )
                         } else {
@@ -108,12 +103,12 @@ fun HomeScreen(
                         IconButton(onClick = { showSearch = !showSearch }) {
                             Icon(
                                 if (showSearch) Icons.Default.SearchOff else Icons.Default.Search,
-                                contentDescription = "Search"
+                                "Search"
                             )
                         }
                         Box {
                             IconButton(onClick = { showSortMenu = true }) {
-                                Icon(Icons.Default.Sort, contentDescription = "Sort")
+                                Icon(Icons.Default.Sort, "Sort")
                             }
                             DropdownMenu(
                                 expanded = showSortMenu,
@@ -122,10 +117,7 @@ fun HomeScreen(
                                 SortMode.values().forEach { mode ->
                                     DropdownMenuItem(
                                         text = { Text(mode.label()) },
-                                        onClick = {
-                                            viewModel.setSortMode(mode)
-                                            showSortMenu = false
-                                        },
+                                        onClick = { viewModel.setSortMode(mode); showSortMenu = false },
                                         leadingIcon = {
                                             if (sortMode == mode) {
                                                 Icon(Icons.Default.Check, null, modifier = Modifier.size(16.dp))
@@ -136,18 +128,16 @@ fun HomeScreen(
                             }
                         }
                         IconButton(onClick = onNavigateToStats) {
-                            Icon(Icons.Default.BarChart, contentDescription = "Stats")
+                            Icon(Icons.Default.BarChart, "Stats")
                         }
                         IconButton(onClick = onNavigateToSettings) {
-                            Icon(Icons.Default.Settings, contentDescription = "Settings")
+                            Icon(Icons.Default.Settings, "Settings")
                         }
                     },
                     colors = TopAppBarDefaults.topAppBarColors(
                         containerColor = MaterialTheme.colorScheme.background
                     )
                 )
-
-                // Category chips
                 CategoryFilterRow(
                     selectedCategory = selectedCategory,
                     filterMode = filterMode,
@@ -171,6 +161,24 @@ fun HomeScreen(
         if (notifications.isEmpty()) {
             EmptyState(filterMode = filterMode, searchQuery = searchQuery)
         } else {
+            // Group into sections without stickyHeader (avoids experimental API)
+            val grouped = notifications.groupBy { notif ->
+                val diff = System.currentTimeMillis() - notif.timestamp
+                when {
+                    diff < 86_400_000L    -> "Today"
+                    diff < 172_800_000L   -> "Yesterday"
+                    diff < 604_800_000L   -> "This Week"
+                    else                  -> "Older"
+                }
+            }
+            // Flatten into a single list with separator items
+            val flatList = buildList {
+                grouped.forEach { (label, items) ->
+                    add(SectionHeader(label, items.size))
+                    items.forEach { add(it) }
+                }
+            }
+
             LazyColumn(
                 contentPadding = PaddingValues(
                     top = padding.calculateTopPadding() + 8.dp,
@@ -180,29 +188,28 @@ fun HomeScreen(
                 ),
                 verticalArrangement = Arrangement.spacedBy(8.dp)
             ) {
-                // Group by date
-                val grouped = notifications.groupBy { notif ->
-                    val diff = System.currentTimeMillis() - notif.timestamp
-                    when {
-                        diff < 86_400_000 -> "Today"
-                        diff < 172_800_000 -> "Yesterday"
-                        diff < 604_800_000 -> "This Week"
-                        else -> "Older"
+                items(
+                    items = flatList,
+                    key = { item ->
+                        when (item) {
+                            is SectionHeader     -> "header_${item.label}"
+                            is NotificationEntity -> item.id
+                            else                 -> item.hashCode()
+                        }
                     }
-                }
-
-                grouped.forEach { (dateGroup, items) ->
-                    stickyHeader {
-                        DateGroupHeader(label = dateGroup, count = items.size)
-                    }
-                    items(items, key = { it.id }) { notification ->
-                        NotificationCard(
-                            notification = notification,
-                            onClick = { viewModel.markAsRead(notification.id) },
-                            onStar = { viewModel.toggleStar(notification) },
-                            onDelete = { viewModel.delete(notification) },
-                            onReminder = { reminderNotification = notification },
-                            modifier = Modifier.animateItem()
+                ) { item ->
+                    when (item) {
+                        is SectionHeader -> DateGroupHeader(
+                            label = item.label,
+                            count = item.count
+                        )
+                        is NotificationEntity -> NotificationCard(
+                            notification = item,
+                            onClick = { viewModel.markAsRead(item.id) },
+                            onStar = { viewModel.toggleStar(item) },
+                            onDelete = { viewModel.delete(item) },
+                            onReminder = { reminderNotification = item },
+                            modifier = Modifier.animateContentSize()
                         )
                     }
                 }
@@ -210,6 +217,9 @@ fun HomeScreen(
         }
     }
 }
+
+/** Lightweight wrapper used as a section-header sentinel in the flat list. */
+private data class SectionHeader(val label: String, val count: Int)
 
 @Composable
 private fun DateGroupHeader(label: String, count: Int) {
@@ -257,39 +267,28 @@ private fun CategoryFilterRow(
         indicator = {},
         modifier = Modifier.padding(bottom = 4.dp)
     ) {
-        // All
         FilterChipItem(
             label = "All",
             selected = filterMode == FilterMode.ALL && selectedCategory == null,
-            onClick = { onFilterSelected(FilterMode.ALL); onCategorySelected(null) },
             icon = Icons.Default.GridView
-        )
-        FilterChipItem(
-            label = "Unread",
-            selected = filterMode == FilterMode.UNREAD,
-            onClick = { onFilterSelected(FilterMode.UNREAD) },
-            icon = Icons.Default.FiberManualRecord
-        )
-        FilterChipItem(
-            label = "Starred",
-            selected = filterMode == FilterMode.STARRED,
-            onClick = { onFilterSelected(FilterMode.STARRED) },
-            icon = Icons.Default.Star
-        )
-        FilterChipItem(
-            label = "Reminders",
-            selected = filterMode == FilterMode.REMINDERS,
-            onClick = { onFilterSelected(FilterMode.REMINDERS) },
-            icon = Icons.Default.Alarm
-        )
+        ) { onFilterSelected(FilterMode.ALL); onCategorySelected(null) }
+
+        FilterChipItem("Unread", filterMode == FilterMode.UNREAD, Icons.Default.FiberManualRecord) {
+            onFilterSelected(FilterMode.UNREAD)
+        }
+        FilterChipItem("Starred", filterMode == FilterMode.STARRED, Icons.Default.Star) {
+            onFilterSelected(FilterMode.STARRED)
+        }
+        FilterChipItem("Reminders", filterMode == FilterMode.REMINDERS, Icons.Default.Alarm) {
+            onFilterSelected(FilterMode.REMINDERS)
+        }
         AppCategory.values().forEach { cat ->
             FilterChipItem(
                 label = cat.displayName(),
                 selected = selectedCategory == cat,
-                onClick = { onCategorySelected(if (selectedCategory == cat) null else cat) },
                 icon = cat.icon(),
                 color = cat.color()
-            )
+            ) { onCategorySelected(if (selectedCategory == cat) null else cat) }
         }
     }
 }
@@ -298,17 +297,15 @@ private fun CategoryFilterRow(
 private fun FilterChipItem(
     label: String,
     selected: Boolean,
-    onClick: () -> Unit,
     icon: androidx.compose.ui.graphics.vector.ImageVector,
-    color: androidx.compose.ui.graphics.Color = MaterialTheme.colorScheme.primary
+    color: androidx.compose.ui.graphics.Color = MaterialTheme.colorScheme.primary,
+    onClick: () -> Unit
 ) {
     FilterChip(
         selected = selected,
         onClick = onClick,
         label = { Text(label, style = MaterialTheme.typography.labelMedium) },
-        leadingIcon = if (selected) ({
-            Icon(icon, null, modifier = Modifier.size(14.dp))
-        }) else null,
+        leadingIcon = if (selected) ({ Icon(icon, null, modifier = Modifier.size(14.dp)) }) else null,
         modifier = Modifier.padding(horizontal = 3.dp),
         colors = FilterChipDefaults.filterChipColors(
             selectedContainerColor = color.copy(alpha = 0.2f),
@@ -317,7 +314,7 @@ private fun FilterChipItem(
         ),
         border = FilterChipDefaults.filterChipBorder(
             borderColor = if (selected) color.copy(alpha = 0.5f)
-            else MaterialTheme.colorScheme.outlineVariant,
+                          else MaterialTheme.colorScheme.outlineVariant,
             selectedBorderColor = color.copy(alpha = 0.5f),
             enabled = true,
             selected = selected
@@ -331,7 +328,7 @@ private fun EmptyState(filterMode: FilterMode, searchQuery: String) {
         Column(horizontalAlignment = Alignment.CenterHorizontally) {
             Icon(
                 imageVector = if (searchQuery.isNotBlank()) Icons.Default.SearchOff
-                else Icons.Default.NotificationsNone,
+                              else Icons.Default.NotificationsNone,
                 contentDescription = null,
                 modifier = Modifier.size(72.dp),
                 tint = MaterialTheme.colorScheme.outlineVariant
@@ -339,18 +336,18 @@ private fun EmptyState(filterMode: FilterMode, searchQuery: String) {
             Spacer(Modifier.height(16.dp))
             Text(
                 text = if (searchQuery.isNotBlank()) "No results for \"$searchQuery\""
-                else when (filterMode) {
-                    FilterMode.STARRED -> "No starred notifications"
-                    FilterMode.UNREAD -> "All caught up! 🎉"
-                    FilterMode.REMINDERS -> "No reminders set"
-                    else -> "No notifications yet"
-                },
+                       else when (filterMode) {
+                           FilterMode.STARRED   -> "No starred notifications"
+                           FilterMode.UNREAD    -> "All caught up! 🎉"
+                           FilterMode.REMINDERS -> "No reminders set"
+                           else                 -> "No notifications yet"
+                       },
                 style = MaterialTheme.typography.titleMedium,
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )
             Spacer(Modifier.height(8.dp))
             Text(
-                text = "Notifications will appear here once received",
+                "Notifications will appear here once received",
                 style = MaterialTheme.typography.bodySmall,
                 color = MaterialTheme.colorScheme.outline
             )
@@ -359,8 +356,8 @@ private fun EmptyState(filterMode: FilterMode, searchQuery: String) {
 }
 
 fun SortMode.label(): String = when (this) {
-    SortMode.NEWEST -> "Newest first"
-    SortMode.OLDEST -> "Oldest first"
+    SortMode.NEWEST   -> "Newest first"
+    SortMode.OLDEST   -> "Oldest first"
     SortMode.APP_NAME -> "By app"
     SortMode.PRIORITY -> "By priority"
 }
