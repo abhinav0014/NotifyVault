@@ -93,7 +93,7 @@ jobs:
         uses: actions/checkout@v4
         with:
           repository: ${{ env.APPVAULT_REPO }}
-          token: ${{ secrets.APPVAULT_TOKEN }}
+          token: ${{ secrets.PAT_TOKEN }}
           path: appvault
 
       - name: Fetch repo stats

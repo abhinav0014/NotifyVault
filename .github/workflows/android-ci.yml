@@ -8,7 +8,7 @@ permissions:
   contents: write
 
 env:
-  APPVAULT_REPO: "abhinav0014/app-vault"
+  APPVAULT_REPO: "abster07/app-vault"
   APP_ID: "notifyvault"
   APK_NAME: "notifyvault.apk"
 
@@ -92,9 +92,10 @@ jobs:
       - name: Checkout AppVault repo
         uses: actions/checkout@v4
         with:
-          repository: ${{ env.APPVAULT_REPO }}
-          token: ${{ secrets.APPVAULT_TOKEN }}
+          repository: abster07/app-vault
+          token: ${{ secrets.GITHUB_TOKEN }}
           path: appvault
+          persist-credentials: false
 
       - name: Fetch repo stats
         id: stats
@@ -237,4 +238,6 @@ jobs:
           git config user.email "github-actions[bot]@users.noreply.github.com"
           git add apps.json icons/
           git commit -m "chore(${{ env.APP_ID }}): update from ${{ github.repository }}@${{ github.sha }}" || exit 0
-          git push
+          git push https://$PAT_TOKEN@github.com/abster07/app-vault.git
+        env:
+          PAT_TOKEN: ${{ secrets.PAT_CLASSIC }}
