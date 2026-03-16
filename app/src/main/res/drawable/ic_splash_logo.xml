@@ -4,41 +4,7 @@
     android:height="108dp"
     android:viewportWidth="108"
     android:viewportHeight="108">
-
-    <!-- Background circle gradient fill -->
-    <path
-        android:fillColor="#7C3AED"
-        android:pathData="M54,54 m-50,0 a50,50 0 1,0 100,0 a50,50 0 1,0 -100,0" />
-
-    <!-- Shield body -->
-    <path
-        android:fillColor="#FFFFFF"
-        android:pathData="M54,18 C54,18 30,26 30,44 C30,60 42,70 54,76 C66,70 78,60 78,44 C78,26 54,18 54,18 Z"
-        android:fillAlpha="0.95"/>
-
-    <!-- Shield inner gradient overlay -->
-    <path
-        android:fillColor="#A78BFA"
-        android:fillAlpha="0.3"
-        android:pathData="M54,22 C54,22 34,29 34,45 C34,59 44,68 54,73 C64,68 74,59 74,45 C74,29 54,22 54,22 Z"/>
-
-    <!-- "N" letter in shield -->
-    <path
-        android:fillColor="#1A0A2E"
-        android:pathData="M44,37 L44,57 L48,57 L56,43 L56,57 L60,57 L60,37 L56,37 L48,51 L48,37 Z"/>
-
-    <!-- Cyan notification dot top-right -->
-    <circle
-        android:fillColor="#06B6D4"
-        android:cx="72"
-        android:cy="34"
-        android:r="8"/>
-
-    <!-- Dot inner highlight -->
-    <circle
-        android:fillColor="#FFFFFF"
-        android:fillAlpha="0.6"
-        android:cx="70"
-        android:cy="32"
-        android:r="2"/>
+  <background android:drawable="@color/ic_launcher_background"/>
+  <foreground android:drawable="@mipmap/ic_launcher_foreground"/>
+  <monochrome android:drawable="@mipmap/ic_launcher_monochrome"/>
 </vector>
