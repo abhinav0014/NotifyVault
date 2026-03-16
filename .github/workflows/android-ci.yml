@@ -129,7 +129,7 @@ jobs:
 
       - name: Use existing icon
         run: |
-          cp ../source/app/src/main/res/ic_launcher-web.png appvault/icons/${{ env.APP_ID }}.png
+          cp source/app/src/main/res/ic_launcher-web.png appvault/icons/${{ env.APP_ID }}.png
 
       - name: Update apps.json
         run: |
