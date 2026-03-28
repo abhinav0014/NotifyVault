@@ -53,13 +53,24 @@ fun PermissionScreen(onPermissionGranted: () -> Unit) {
         )
     }
 
+    val alarmPermissionGranted = remember {
+        mutableStateOf(
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+                ContextCompat.checkSelfPermission(context, Manifest.permission.SCHEDULE_EXACT_ALARM) == PackageManager.PERMISSION_GRANTED
+            } else true
+        )
+    }
+
     val notificationPermissionLauncher = rememberLauncherForActivityResult(
         ActivityResultContracts.RequestPermission()
     ) { granted ->
         notificationPermissionGranted.value = granted
-        if (granted && NotificationPermissionHelper.isNotificationListenerEnabled(context)) {
-            onPermissionGranted()
-        }
+    }
+
+    val alarmPermissionLauncher = rememberLauncherForActivityResult(
+        ActivityResultContracts.RequestPermission()
+    ) { granted ->
+        alarmPermissionGranted.value = granted
     }
 
     val launcher = rememberLauncherForActivityResult(
@@ -150,23 +161,56 @@ fun PermissionScreen(onPermissionGranted: () -> Unit) {
                 Spacer(Modifier.height(40.dp))
 
                 // Feature list
-                val features = listOf(
-                    Triple(Icons.Default.History, "Permanent history", "Notifications stored forever, even after dismissal"),
-                    Triple(Icons.Default.Category, "Auto-categorized", "Sorted by app type automatically"),
-                    Triple(Icons.Default.Alarm, "Smart reminders", "Never miss something important"),
-                    Triple(Icons.Default.Search, "Full-text search", "Find any notification instantly"),
-                )
-                features.forEach { (icon, title, desc) ->
-                    FeatureRow(
-                        icon = icon,
-                        title = title,
-                        description = desc,
-                        onClick = {
-                            Toast.makeText(context, title, Toast.LENGTH_SHORT).show()
+                FeatureRow(
+                    icon = Icons.Default.History,
+                    title = "Permanent history",
+                    description = "Notifications stored forever, even after dismissal",
+                    onClick = {
+                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU && !notificationPermissionGranted.value) {
+                            notificationPermissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
+                        } else {
+                            launcher.launch(Intent(Settings.ACTION_NOTIFICATION_LISTENER_SETTINGS))
                         }
-                    )
-                    Spacer(Modifier.height(16.dp))
-                }
+                    }
+                )
+                Spacer(Modifier.height(16.dp))
+
+                FeatureRow(
+                    icon = Icons.Default.Category,
+                    title = "Auto-categorized",
+                    description = "Sorted by app type automatically",
+                    onClick = {
+                        launcher.launch(Intent(Settings.ACTION_NOTIFICATION_LISTENER_SETTINGS))
+                    }
+                )
+                Spacer(Modifier.height(16.dp))
+
+                FeatureRow(
+                    icon = Icons.Default.Alarm,
+                    title = "Smart reminders",
+                    description = "Never miss something important",
+                    onClick = {
+                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S && !alarmPermissionGranted.value) {
+                            alarmPermissionLauncher.launch(Manifest.permission.SCHEDULE_EXACT_ALARM)
+                        } else {
+                            try {
+                                context.startActivity(NotificationPermissionHelper.getRequestIgnoreBatteryOptimizationsIntent(context))
+                            } catch (_: ActivityNotFoundException) {
+                                Toast.makeText(context, "Reminders enabled", Toast.LENGTH_SHORT).show()
+                            }
+                        }
+                    }
+                )
+                Spacer(Modifier.height(16.dp))
+
+                FeatureRow(
+                    icon = Icons.Default.Search,
+                    title = "Full-text search",
+                    description = "Find any notification instantly",
+                    onClick = {
+                        launcher.launch(Intent(Settings.ACTION_NOTIFICATION_LISTENER_SETTINGS))
+                    }
+                )
 
                 Spacer(Modifier.height(40.dp))
 
