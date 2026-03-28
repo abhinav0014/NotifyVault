@@ -119,6 +119,26 @@ fun SettingsScreen(
                         statusColor = if (isListenerEnabled) Color(0xFF10B981) else MaterialTheme.colorScheme.error,
                         onClick = { context.startActivity(Intent(Settings.ACTION_NOTIFICATION_LISTENER_SETTINGS)) }
                     )
+                    HorizontalDivider(
+                        modifier = Modifier.padding(horizontal = 16.dp),
+                        color = MaterialTheme.colorScheme.outlineVariant
+                    )
+                    SettingsClickRow(
+                        icon = Icons.Default.BatteryChargingFull,
+                        title = "Disable battery optimization",
+                        subtitle = if (NotificationPermissionHelper.isIgnoringBatteryOptimizations(context)) "Already excluded from battery optimization" else "Open battery optimization settings",
+                        onClick = { context.startActivity(NotificationPermissionHelper.getRequestIgnoreBatteryOptimizationsIntent(context)) }
+                    )
+                    HorizontalDivider(
+                        modifier = Modifier.padding(horizontal = 16.dp),
+                        color = MaterialTheme.colorScheme.outlineVariant
+                    )
+                    SettingsClickRow(
+                        icon = Icons.Default.PowerSettingsNew,
+                        title = "Enable auto-start",
+                        subtitle = "Allow NotifyVault to restart after reboot",
+                        onClick = { context.startActivity(NotificationPermissionHelper.getAutoStartIntent(context)) }
+                    )
                 }
             }
 

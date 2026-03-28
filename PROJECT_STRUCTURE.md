@@ -8,8 +8,6 @@
 │           ├── java
 │           │   └── com
 │           │       └── notifyvault
-│           │           ├── MainActivity.kt
-│           │           ├── NotifyVaultApp.kt
 │           │           ├── data
 │           │           │   ├── db
 │           │           │   │   ├── NotificationDao.kt
@@ -20,14 +18,16 @@
 │           │           │       └── NotificationRepository.kt
 │           │           ├── di
 │           │           │   └── AppModule.kt
+│           │           ├── MainActivity.kt
+│           │           ├── NotifyVaultApp.kt
 │           │           ├── service
 │           │           │   ├── BootAndReminderReceiver.kt
 │           │           │   └── NotificationListenerService.kt
 │           │           ├── ui
-│           │           │   ├── MainViewModel.kt
 │           │           │   ├── components
 │           │           │   │   ├── NotificationCard.kt
 │           │           │   │   └── ReminderDialog.kt
+│           │           │   ├── MainViewModel.kt
 │           │           │   ├── screens
 │           │           │   │   ├── HomeScreen.kt
 │           │           │   │   ├── PermissionScreen.kt
@@ -45,35 +45,35 @@
 │               │   └── ic_splash_logo.xml
 │               ├── ic_launcher-web.png
 │               ├── mipmap-anydpi-v26
-│               │   ├── ic_launcher.xml
-│               │   └── ic_launcher_round.xml
+│               │   ├── ic_launcher_round.xml
+│               │   └── ic_launcher.xml
 │               ├── mipmap-hdpi
-│               │   ├── ic_launcher.png
 │               │   ├── ic_launcher_foreground.png
 │               │   ├── ic_launcher_monochrome.png
+│               │   ├── ic_launcher.png
 │               │   └── ic_launcher_round.png
 │               ├── mipmap-ldpi
 │               │   ├── ic_launcher.png
 │               │   └── ic_launcher_round.png
 │               ├── mipmap-mdpi
-│               │   ├── ic_launcher.png
 │               │   ├── ic_launcher_foreground.png
 │               │   ├── ic_launcher_monochrome.png
+│               │   ├── ic_launcher.png
 │               │   └── ic_launcher_round.png
 │               ├── mipmap-xhdpi
-│               │   ├── ic_launcher.png
 │               │   ├── ic_launcher_foreground.png
 │               │   ├── ic_launcher_monochrome.png
+│               │   ├── ic_launcher.png
 │               │   └── ic_launcher_round.png
 │               ├── mipmap-xxhdpi
-│               │   ├── ic_launcher.png
 │               │   ├── ic_launcher_foreground.png
 │               │   ├── ic_launcher_monochrome.png
+│               │   ├── ic_launcher.png
 │               │   └── ic_launcher_round.png
 │               ├── mipmap-xxxhdpi
-│               │   ├── ic_launcher.png
 │               │   ├── ic_launcher_foreground.png
 │               │   ├── ic_launcher_monochrome.png
+│               │   ├── ic_launcher.png
 │               │   └── ic_launcher_round.png
 │               ├── playstore-icon.png
 │               ├── values
@@ -93,7 +93,7 @@
 ├── gradle.properties
 ├── gradlew
 ├── gradlew.bat
-├── settings.gradle
-└── tree.md
+├── PROJECT_STRUCTURE.md
+└── settings.gradle
 
 32 directories, 65 files
